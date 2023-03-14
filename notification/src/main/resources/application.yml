@@ -1,0 +1,38 @@
+server:
+  port: 8082
+
+spring:
+  profiles:
+    active: default
+  application:
+    name: notification
+  datasource:
+    url: jdbc:postgresql://localhost:5432/notification
+    password: password
+    username: kapok
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+  zipkin:
+    base-url: http://localhost:9411
+  rabbitmq:
+    template:
+      exchange:
+        internal: internal.exchange
+      routing-key:
+        internal-notification: internal.notification.routing-key
+    queue:
+      notification: notification.queue
+    addresses: localhost:5672
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    enabled: false

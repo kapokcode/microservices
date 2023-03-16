@@ -70,7 +70,7 @@ class CustomerRepositoryTest {
                 .firstName("kapok")
                 .lastName("code")
                 .email("kapokoffical@gmail.com")
-                .phoneNumber(131)
+                .phoneNumber(132)
                 .build();
 
         //When
@@ -84,8 +84,34 @@ class CustomerRepositoryTest {
                     assertThat(c.getId()).isEqualTo(id);
                     assertThat(c.getFirstName()).isEqualTo("kapok");
                     assertThat(c.getLastName()).isEqualTo("code");
-                    assertThat(c.getPhoneNumber()).isEqualTo(131);
+                    assertThat(c.getPhoneNumber()).isEqualTo(132);
                 });
+    }
+
+    @Test
+    void itShouldNotSaveCustomerWhenPhoneNumberExist() {
+        // Given
+        Customer customer = Customer.builder()
+                .id(UUID.randomUUID())
+                .firstName("kapok")
+                .lastName("code")
+                .email("kapokoffical@gmail.com")
+                .phoneNumber(133)
+                .build();
+
+        Customer samePhoneCustomer = Customer.builder()
+                .id(UUID.randomUUID())
+                .firstName("kapok")
+                .lastName("code")
+                .email("kapokoffical@gmail.com")
+                .phoneNumber(133)
+                .build();
+        //When
+        underTest.save(customer);
+
+        //Then
+        assertThatThrownBy(() ->underTest.save(samePhoneCustomer))
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 
 

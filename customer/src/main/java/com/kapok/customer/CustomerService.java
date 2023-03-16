@@ -6,6 +6,7 @@ import com.kapok.clients.fraud.FraudClient;
 import com.kapok.clients.notification.NotificationRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Optional;
@@ -70,5 +71,10 @@ public class CustomerService {
                 "internal.exchange",
                 "internal.notification.routing-key"
         );
+    }
+
+    public boolean checkCustomerExist(UUID id){
+        Optional<Customer> customerOptional = customerRepository.findById(id);
+        return customerOptional.isPresent();
     }
 }

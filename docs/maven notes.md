@@ -1,14 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+> 本文整理在这个框架中所涉及到的 maven 模块和实际应用，会根据教程顺序进行整理具体步骤中的实现
 
-    <groupId>com.kapok</groupId>
-    <artifactId>kapokservices</artifactId>
-    <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
-    <modules>
+## 父工程管理
+
+配置子模块的管理
+
+```xml
+	<modules>
         <module>customer</module>
         <module>fraud</module>
         <module>eureka-server</module>
@@ -18,21 +15,33 @@
         <module>amqp</module>
         <module>payment</module>
     </modules>
+```
 
-    <name>kapokservices</name>
-    <url>www.kapok-h.com</url>
 
-    <properties>
+
+### properties
+
+在 `properties` 标签中我们可以配置整个项目的编译版本和编码格式，我们的版本管理应该统一在父工程中配置，通过父工程的版本配置 `dependencyManagement` 我们的子工程的依赖可以自动找到对应版本。
+
+```xml
+	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <spring.boot.maven.plugin.version>2.7.6</spring.boot.maven.plugin.version>
         <spring.boot.dependecies.version>2.7.6</spring.boot.dependecies.version>
         <spring.cloud.dependecies.version>2021.0.5</spring.cloud.dependecies.version>
-        <image>kapokcode/${project.artifactId}:${project.version}</image>
     </properties>
+```
 
-    <dependencyManagement>
+
+
+### dependencyManagement
+
+在 `dependencyManagement` 标签中我们用于配置整个工程版本管理
+
+```xml
+	<dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -51,8 +60,16 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+```
 
-    <dependencies>
+
+
+### dependencies
+
+在父工程中的 `dependencies` 中，我们可以给每个管理的模块统一添加依赖。
+
+```xml
+	<dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -67,8 +84,20 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
     </dependencies>
+```
 
-    <build>
+
+
+### build
+
+在父工程中build使用两个子标签，分别是 `pluginManagement` 和 `plugins`  。
+
+`spring-boot-maven-plugin` 插件配置了 spring boot 官方打包工具，版本与 spring-boot 版本一致
+
+`jib-maven-plugin` 插件是一个 google 的 docker 镜像打包工具，用于生成和上传镜像
+
+```xml
+	<build>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -131,4 +160,62 @@
             </plugin>
         </plugins>
     </build>
-</project>
+```
+
+
+
+## 子工程管理
+
+### parent
+
+配置导入父工程的依赖，配合
+
+```xml
+<parent>
+    <artifactId>kapokservices</artifactId>
+    <groupId>com.kapok</groupId>
+    <version>1.0-SNAPSHOT</version>
+</parent>
+```
+
+### profiles
+
+配置镜像打包依赖
+
+```xml
+	<profiles>
+        <profile>
+            <id>build-docker-image</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+```
+
+### dependency
+
+配置依赖引用
+
+```xml
+		<dependency>
+            <groupId>com.kapok</groupId>
+            <artifactId>amqp</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.kapok</groupId>
+            <artifactId>clients</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+```
+
+
+
